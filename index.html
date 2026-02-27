@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Cuestionario</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; padding: 24px; margin: 0; }
+    .wrap { max-width: 900px; margin: 0 auto; }
+
+    /* Header */
+    .header {
+      background: #1e3a5f; border-radius: 12px; padding: 20px 28px;
+      margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .header h1 { color: #fff; margin: 0; font-size: 22px; font-weight: 700; }
+    .header p  { color: #a8c4e0; margin: 4px 0 0; font-size: 13px; }
+    .header-right { display: flex; align-items: center; gap: 20px; }
+    .answered-label { color: #a8c4e0; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+    .answered-count { color: #fff; font-size: 22px; font-weight: 700; }
+    .answered-count span { color: #a8c4e0; font-size: 13px; }
+    .divider { width: 1px; height: 40px; background: #2e5080; }
+    .btn-clear {
+      padding: 8px 16px; border-radius: 20px; border: 1px solid #4a7aaa;
+      cursor: pointer; background: transparent; color: #a8c4e0; font-size: 13px;
+    }
+    .btn-download {
+      padding: 8px 18px; border-radius: 20px; border: none;
+      cursor: pointer; background: #4ade80; color: #1e3a5f; font-size: 13px; font-weight: 700;
+    }
+
+    /* Table */
+    .table-wrap {
+      background: #fff; border-radius: 12px; overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 24px;
+    }
+    .table-head {
+      display: grid; grid-template-columns: 56px 100px 1fr 80px;
+      padding: 10px 20px; background: #1e3a5f; gap: 8px;
+    }
+    .table-head div { color: #a8c4e0; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .table-body { max-height: 560px; overflow-y: auto; }
+    .table-row {
+      display: grid; grid-template-columns: 56px 100px 1fr 80px;
+      padding: 7px 20px; gap: 8px; align-items: center;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .table-row.even { background: #fff; }
+    .table-row.odd  { background: #f8fafc; }
+    .q-num { font-weight: 700; color: #1e3a5f; font-size: 15px; }
+    .badge {
+      font-size: 11px; font-weight: 600; padding: 2px 7px;
+      border-radius: 10px; display: inline-block;
+    }
+    .badge.normal  { background: #dcfce7; color: #166534; }
+    .badge.inverse { background: #fef3c7; color: #92400e; }
+    .btn-group { display: flex; gap: 5px; }
+    .btn-ans {
+      width: 34px; height: 34px; border-radius: 7px; border: 2px solid #e0e0e0;
+      background: #fff; color: #555; font-weight: 700; font-size: 13px;
+      cursor: pointer; transition: all 0.12s;
+    }
+    .btn-ans.selected { border-color: #1e3a5f; background: #1e3a5f; color: #fff; }
+    .result { font-weight: 700; font-size: 18px; text-align: center; color: #ccc; }
+    .result.has-value { color: #16a34a; }
+
+    /* Category cards */
+    .cat-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px; margin-bottom: 16px;
+    }
+    .cat-card {
+      background: #fff; border-radius: 10px; padding: 14px 16px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    }
+    .cat-name  { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; line-height: 1.3; }
+    .cat-score { color: #1e3a5f; font-weight: 800; font-size: 28px; }
+    .cat-info  { color: #999; font-size: 12px; margin-top: 2px; }
+
+    /* Grand total */
+    .grand-total {
+      background: #1e3a5f; border-radius: 12px; padding: 16px 28px;
+      display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    }
+    .grand-label { color: #a8c4e0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+    .grand-sub   { color: rgba(255,255,255,0.6); font-size: 13px; margin-top: 2px; }
+    .grand-num   { color: #4ade80; font-weight: 800; font-size: 36px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <h1>Cuestionario</h1>
+      <p>Normales: 0→4, 4→0 · Inversas: 0→0, 4→4</p>
+    </div>
+    <div class="header-right">
+      <div>
+        <div class="answered-label">Respondidas</div>
+        <div class="answered-count"><span id="answered-count">0</span><span>/55</span></div>
+      </div>
+      <div class="divider"></div>
+      <button class="btn-clear" onclick="clearAll()">Limpiar todo</button>
+      <button class="btn-download" onclick="downloadHTML()">⬇ Descargar HTML</button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <div class="table-head">
+      <div>#</div><div>Tipo</div><div>Respuesta</div><div>Resultado</div>
+    </div>
+    <div class="table-body" id="table-body"></div>
+  </div>
+
+  <!-- Category cards -->
+  <div class="cat-grid" id="cat-grid"></div>
+
+  <!-- Grand total -->
+  <div class="grand-total">
+    <div>
+      <div class="grand-label">Puntuación directa total</div>
+      <div class="grand-sub" id="grand-sub">0 de 55 preguntas respondidas</div>
+    </div>
+    <div class="grand-num" id="grand-num">0</div>
+  </div>
+
+</div>
+
+<script>
+const INVERSE = new Set([3,6,8,24,30,32,43,54,42,15,29,31,33,49,55,7,25,37,40,45,50,5,18,22,27,38]);
+
+const CATEGORIES = [
+  { name: "Control de Estrés",                           questions: new Set([1,3,6,8,10,12,13,14,17,19,20,21,24,26,30,32,36,41,43,54]), color: "#1e3a5f" },
+  { name: "Influencia de la Evaluación del Rendimiento", questions: new Set([9,16,28,34,35,42,44,46,47,51,52,53]),                      color: "#5b2d8e" },
+  { name: "Motivación",                                  questions: new Set([4,15,29,31,33,39,49,55]),                                   color: "#b45309" },
+  { name: "Habilidad Mental",                            questions: new Set([2,7,23,25,37,40,45,48,50]),                                 color: "#065f46" },
+  { name: "Cohesión de Equipo",                          questions: new Set([5,11,18,22,27,38]),                                         color: "#9f1239" },
+];
+
+const SCORE_VEC     = [4, 3, 2, 1, 0];
+const SCORE_VEC_INV = [0, 1, 2, 3, 4];
+
+const answers = {};
+
+function getScore(q, ans) {
+  if (ans === undefined || ans === null) return null;
+  return INVERSE.has(q) ? SCORE_VEC_INV[ans] : SCORE_VEC[ans];
+}
+
+function buildTable() {
+  const body = document.getElementById('table-body');
+  body.innerHTML = '';
+  for (let q = 1; q <= 55; q++) {
+    const isInv = INVERSE.has(q);
+    const row = document.createElement('div');
+    row.className = `table-row ${q % 2 === 0 ? 'odd' : 'even'}`;
+    row.id = `row-${q}`;
+
+    const btns = [0,1,2,3,4].map(v =>
+      `<button class="btn-ans" id="btn-${q}-${v}" onclick="select(${q},${v})">${v}</button>`
+    ).join('');
+
+    row.innerHTML = `
+      <div class="q-num">${q}</div>
+      <div><span class="badge ${isInv ? 'inverse' : 'normal'}">${isInv ? '↩ Inversa' : '→ Normal'}</span></div>
+      <div class="btn-group">${btns}</div>
+      <div class="result" id="result-${q}">–</div>
+    `;
+    body.appendChild(row);
+  }
+}
+
+function buildCatCards() {
+  const grid = document.getElementById('cat-grid');
+  grid.innerHTML = '';
+  CATEGORIES.forEach((cat, ci) => {
+    const card = document.createElement('div');
+    card.className = 'cat-card';
+    card.style.borderLeft = `4px solid ${cat.color}`;
+    card.id = `cat-card-${ci}`;
+    card.innerHTML = `
+      <div class="cat-name" style="color:${cat.color}">${cat.name}</div>
+      <div class="cat-score" id="cat-score-${ci}">0</div>
+      <div class="cat-info" id="cat-info-${ci}">0/${cat.questions.size} respondidas</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function select(q, val) {
+  // Toggle off if same
+  if (answers[q] === val) {
+    delete answers[q];
+  } else {
+    answers[q] = val;
+  }
+  updateRow(q);
+  updateSummary();
+}
+
+function updateRow(q) {
+  const ans   = answers[q];
+  const score = ans !== undefined ? getScore(q, ans) : null;
+
+  for (let v = 0; v <= 4; v++) {
+    const btn = document.getElementById(`btn-${q}-${v}`);
+    if (btn) btn.className = `btn-ans${ans === v ? ' selected' : ''}`;
+  }
+
+  const resEl = document.getElementById(`result-${q}`);
+  if (score !== null) {
+    resEl.textContent = score;
+    resEl.className = 'result has-value';
+  } else {
+    resEl.textContent = '–';
+    resEl.className = 'result';
+  }
+}
+
+function updateSummary() {
+  let totalAnswered = 0;
+  let grandTotal    = 0;
+
+  CATEGORIES.forEach((cat, ci) => {
+    let catTotal = 0, catAnswered = 0;
+    cat.questions.forEach(q => {
+      const ans = answers[q];
+      if (ans !== undefined) {
+        catTotal += getScore(q, ans);
+        catAnswered++;
+      }
+    });
+    document.getElementById(`cat-score-${ci}`).textContent = catTotal;
+    document.getElementById(`cat-info-${ci}`).textContent  = `${catAnswered}/${cat.questions.size} respondidas`;
+    grandTotal    += catTotal;
+    totalAnswered += catAnswered;
+  });
+
+  document.getElementById('answered-count').textContent = totalAnswered;
+  document.getElementById('grand-num').textContent      = grandTotal;
+  document.getElementById('grand-sub').textContent      = `${totalAnswered} de 55 preguntas respondidas`;
+}
+
+function clearAll() {
+  for (const key in answers) delete answers[key];
+  for (let q = 1; q <= 55; q++) updateRow(q);
+  updateSummary();
+}
+
+function downloadHTML() {
+  let grandTotal = 0, totalAnswered = 0;
+
+  const qRows = Array.from({length:55},(_,i)=>i+1).map((q, idx) => {
+    const isInv = INVERSE.has(q);
+    const ans   = answers[q];
+    const score = ans !== undefined ? getScore(q, ans) : null;
+    if (score !== null) { grandTotal += score; totalAnswered++; }
+    const bg        = idx % 2 === 0 ? '#fff' : '#f8fafc';
+    const typeBg    = isInv ? '#fef3c7' : '#dcfce7';
+    const typeColor = isInv ? '#92400e' : '#166534';
+    const typeLabel = isInv ? '↩ Inversa' : '→ Normal';
+    const btnCells  = [0,1,2,3,4].map(v => {
+      const sel = ans === v;
+      return `<span style="display:inline-block;width:30px;height:30px;line-height:28px;text-align:center;border-radius:6px;border:2px solid ${sel?'#1e3a5f':'#e0e0e0'};background:${sel?'#1e3a5f':'#fff'};color:${sel?'#fff':'#555'};font-weight:700;font-size:13px;margin-right:4px">${v}</span>`;
+    }).join('');
+    return `<tr style="background:${bg}">
+      <td style="padding:8px 16px;font-weight:700;color:#1e3a5f">${q}</td>
+      <td style="padding:8px 16px"><span style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:10px;background:${typeBg};color:${typeColor}">${typeLabel}</span></td>
+      <td style="padding:8px 16px">${btnCells}</td>
+      <td style="padding:8px 16px;text-align:center;font-weight:700;font-size:18px;color:${score!==null?'#16a34a':'#ccc'}">${score!==null?score:'–'}</td>
+    </tr>`;
+  }).join('');
+
+  const catCards = CATEGORIES.map((cat) => {
+    let catTotal = 0, catAnswered = 0;
+    cat.questions.forEach(q => {
+      const ans = answers[q];
+      if (ans !== undefined) { catTotal += getScore(q, ans); catAnswered++; }
+    });
+    return `<div style="background:#fff;border-radius:10px;padding:14px 16px;border-left:4px solid ${cat.color};box-shadow:0 1px 6px rgba(0,0,0,0.07)">
+      <div style="color:${cat.color};font-size:11px;font-weight:700;text-transform:uppercase;margin-bottom:6px">${cat.name}</div>
+      <div style="color:#1e3a5f;font-weight:800;font-size:28px">${catTotal}</div>
+      <div style="color:#999;font-size:12px">${catAnswered}/${cat.questions.size} respondidas</div>
+    </div>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Cuestionario – Resultados</title>
+  <style>body{font-family:'Segoe UI',sans-serif;background:#f0f4f8;padding:24px;margin:0}*{box-sizing:border-box}</style>
+</head>
+<body>
+<div style="max-width:900px;margin:0 auto">
+  <div style="background:#1e3a5f;border-radius:12px;padding:20px 28px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center">
+    <div>
+      <h1 style="color:#fff;margin:0;font-size:22px;font-weight:700">Cuestionario – Resultados</h1>
+      <p style="color:#a8c4e0;margin:4px 0 0;font-size:13px">Normales: 0→4, 4→0 · Inversas: 0→0, 4→4</p>
+    </div>
+    <div style="color:#a8c4e0;font-size:13px">${totalAnswered}/55 respondidas</div>
+  </div>
+
+  <div style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.07);margin-bottom:24px">
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr style="background:#1e3a5f">
+        <th style="padding:10px 16px;color:#a8c4e0;font-size:12px;text-align:left;text-transform:uppercase;width:56px">#</th>
+        <th style="padding:10px 16px;color:#a8c4e0;font-size:12px;text-align:left;text-transform:uppercase;width:110px">Tipo</th>
+        <th style="padding:10px 16px;color:#a8c4e0;font-size:12px;text-align:left;text-transform:uppercase">Respuesta</th>
+        <th style="padding:10px 16px;color:#a8c4e0;font-size:12px;text-align:center;text-transform:uppercase;width:90px">Resultado</th>
+      </tr></thead>
+      <tbody>${qRows}</tbody>
+    </table>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px">
+    ${catCards}
+  </div>
+
+  <div style="background:#1e3a5f;border-radius:12px;padding:16px 28px;display:flex;justify-content:space-between;align-items:center">
+    <div>
+      <div style="color:#a8c4e0;font-size:12px;text-transform:uppercase;letter-spacing:1px">Puntuación directa total</div>
+      <div style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:2px">${totalAnswered} de 55 preguntas respondidas</div>
+    </div>
+    <div style="color:#4ade80;font-weight:800;font-size:36px">${grandTotal}</div>
+  </div>
+</div>
+</body>
+</html>`;
+
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'cuestionario_resultados.html';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Init
+buildTable();
+buildCatCards();
+updateSummary();
+</script>
+</body>
+</html>
