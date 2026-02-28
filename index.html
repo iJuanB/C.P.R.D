@@ -2,20 +2,19 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Cuestionario</title>
+  <title>Cuestionario CPRD</title>
   <style>
     * { box-sizing: border-box; }
     body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; padding: 24px; margin: 0; }
-    .wrap { max-width: 900px; margin: 0 auto; }
+    .wrap { max-width: 960px; margin: 0 auto; }
 
-    /* Header */
     .header {
       background: #1e3a5f; border-radius: 12px; padding: 20px 28px;
       margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;
     }
     .header h1 { color: #fff; margin: 0; font-size: 22px; font-weight: 700; }
     .header p  { color: #a8c4e0; margin: 4px 0 0; font-size: 13px; }
-    .header-right { display: flex; align-items: center; gap: 20px; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
     .answered-label { color: #a8c4e0; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
     .answered-count { color: #fff; font-size: 22px; font-weight: 700; }
     .answered-count span { color: #a8c4e0; font-size: 13px; }
@@ -29,7 +28,6 @@
       cursor: pointer; background: #4ade80; color: #1e3a5f; font-size: 13px; font-weight: 700;
     }
 
-    /* Table */
     .table-wrap {
       background: #fff; border-radius: 12px; overflow: hidden;
       box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 24px;
@@ -47,11 +45,8 @@
     }
     .table-row.even { background: #fff; }
     .table-row.odd  { background: #f8fafc; }
-    .q-num { font-weight: 700; color: #1e3a5f; font-size: 15px; }
-    .badge {
-      font-size: 11px; font-weight: 600; padding: 2px 7px;
-      border-radius: 10px; display: inline-block;
-    }
+    .q-num  { font-weight: 700; color: #1e3a5f; font-size: 15px; }
+    .badge  { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 10px; display: inline-block; }
     .badge.normal  { background: #dcfce7; color: #166534; }
     .badge.inverse { background: #fef3c7; color: #92400e; }
     .btn-group { display: flex; gap: 5px; }
@@ -64,28 +59,31 @@
     .result { font-weight: 700; font-size: 18px; text-align: center; color: #ccc; }
     .result.has-value { color: #16a34a; }
 
-    /* Category cards */
-    .cat-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 12px; margin-bottom: 16px;
+    /* Summary table */
+    .summary-table {
+      width: 100%; border-collapse: collapse;
+      background: #fff; border-radius: 12px; overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
     }
-    .cat-card {
-      background: #fff; border-radius: 10px; padding: 14px 16px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    .summary-table thead tr { background: #1e3a5f; }
+    .summary-table thead th {
+      padding: 12px 14px; color: #a8c4e0; font-size: 11px;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+      text-align: center; border: none;
     }
-    .cat-name  { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; line-height: 1.3; }
-    .cat-score { color: #1e3a5f; font-weight: 800; font-size: 28px; }
-    .cat-info  { color: #999; font-size: 12px; margin-top: 2px; }
-
-    /* Grand total */
-    .grand-total {
-      background: #1e3a5f; border-radius: 12px; padding: 16px 28px;
-      display: flex; justify-content: space-between; align-items: center;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    .summary-table thead th:first-child { text-align: left; }
+    .summary-table tbody tr:nth-child(odd)  { background: #fff; }
+    .summary-table tbody tr:nth-child(even) { background: #f8fafc; }
+    .summary-table tbody td {
+      padding: 12px 14px; font-size: 14px; text-align: center;
+      border-bottom: 1px solid #f0f0f0;
     }
-    .grand-label { color: #a8c4e0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
-    .grand-sub   { color: rgba(255,255,255,0.6); font-size: 13px; margin-top: 2px; }
-    .grand-num   { color: #4ade80; font-weight: 800; font-size: 36px; }
+    .summary-table tbody td:first-child { text-align: left; font-weight: 600; }
+    .score-val   { font-weight: 800; font-size: 18px; color: #1e3a5f; }
+    .pctile-val  { font-weight: 800; font-size: 18px; color: #1e3a5f; }
+    .cat-label { display: flex; align-items: center; gap: 8px; }
+    .cat-dot   { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .resp-count { color: #999; font-size: 12px; }
   </style>
 </head>
 <body>
@@ -94,7 +92,7 @@
   <!-- Header -->
   <div class="header">
     <div>
-      <h1>Cuestionario</h1>
+      <h1>Cuestionario C.P.R.D.</h1>
       <p>Normales: 0→4, 4→0 · Inversas: 0→0, 4→4</p>
     </div>
     <div class="header-right">
@@ -103,12 +101,12 @@
         <div class="answered-count"><span id="answered-count">0</span><span>/55</span></div>
       </div>
       <div class="divider"></div>
-      <button class="btn-clear" onclick="clearAll()">Limpiar todo</button>
+      <button class="btn-clear"    onclick="clearAll()">Limpiar todo</button>
       <button class="btn-download" onclick="downloadHTML()">⬇ Descargar HTML</button>
     </div>
   </div>
 
-  <!-- Table -->
+  <!-- Questions table -->
   <div class="table-wrap">
     <div class="table-head">
       <div>#</div><div>Tipo</div><div>Respuesta</div><div>Resultado</div>
@@ -116,17 +114,18 @@
     <div class="table-body" id="table-body"></div>
   </div>
 
-  <!-- Category cards -->
-  <div class="cat-grid" id="cat-grid"></div>
-
-  <!-- Grand total -->
-  <div class="grand-total">
-    <div>
-      <div class="grand-label">Puntuación directa total</div>
-      <div class="grand-sub" id="grand-sub">0 de 55 preguntas respondidas</div>
-    </div>
-    <div class="grand-num" id="grand-num">0</div>
-  </div>
+  <!-- Summary: puntuación + percentil por categoría -->
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th style="width:260px">Categoría</th>
+        <th>Respondidas</th>
+        <th>Puntuación directa</th>
+        <th>Percentil</th>
+      </tr>
+    </thead>
+    <tbody id="summary-body"></tbody>
+  </table>
 
 </div>
 
@@ -141,6 +140,21 @@ const CATEGORIES = [
   { name: "Cohesión de Equipo",                          questions: new Set([5,11,18,22,27,38]),                                         color: "#9f1239" },
 ];
 
+// Baremo (CPRD Anexo 2): arrays [minScore, centile] ordenados de mayor a menor score
+// Para obtener el percentil: primer entry donde score >= minScore
+const BAREMOS = [
+  // Control de Estrés
+  [[77,95],[69,90],[64,85],[61,80],[58,77],[56,75],[54,70],[52,65],[50,60],[48,55],[46,50],[44,45],[42,40],[40,35],[39,30],[36,25],[34,20],[30,15],[27,10],[21,5],[0,1]],
+  // Influencia de la Evaluación del Rendimiento
+  [[42,95],[38,90],[34,85],[33,80],[31,77],[29,75],[28,70],[27,65],[26,60],[24,50],[23,45],[22,40],[21,35],[20,30],[19,25],[18,20],[16,15],[15,10],[12,5],[0,1]],
+  // Motivación
+  [[30,95],[27,90],[26,85],[25,80],[23,77],[22,70],[21,65],[20,60],[19,50],[18,45],[17,40],[16,30],[15,25],[14,15],[12,10],[11,5],[0,1]],
+  // Habilidad Mental
+  [[31,95],[28,90],[26,85],[25,80],[24,77],[23,70],[22,60],[21,55],[20,45],[19,35],[18,30],[17,25],[16,20],[15,10],[13,5],[0,1]],
+  // Cohesión de Equipo
+  [[24,95],[23,85],[22,80],[21,70],[20,60],[19,50],[18,45],[17,35],[16,30],[15,20],[14,15],[13,10],[11,5],[0,1]],
+];
+
 const SCORE_VEC     = [4, 3, 2, 1, 0];
 const SCORE_VEC_INV = [0, 1, 2, 3, 4];
 
@@ -151,6 +165,22 @@ function getScore(q, ans) {
   return INVERSE.has(q) ? SCORE_VEC_INV[ans] : SCORE_VEC[ans];
 }
 
+function getPercentile(catIndex, score) {
+  if (score === null) return null;
+  const baremo = BAREMOS[catIndex];
+  for (const [minScore, centile] of baremo) {
+    if (score >= minScore) return centile;
+  }
+  return 1;
+}
+
+function pctileClass(p) {
+  if (p === null) return '';
+  if (p >= 75) return 'high';
+  if (p >= 40) return 'mid';
+  return 'low';
+}
+
 function buildTable() {
   const body = document.getElementById('table-body');
   body.innerHTML = '';
@@ -159,14 +189,12 @@ function buildTable() {
     const row = document.createElement('div');
     row.className = `table-row ${q % 2 === 0 ? 'odd' : 'even'}`;
     row.id = `row-${q}`;
-
     const btns = [0,1,2,3,4].map(v =>
       `<button class="btn-ans" id="btn-${q}-${v}" onclick="select(${q},${v})">${v}</button>`
     ).join('');
-
     row.innerHTML = `
       <div class="q-num">${q}</div>
-      <div><span class="badge ${isInv ? 'inverse' : 'normal'}">${isInv ? '↩ Inversa' : '→ Normal'}</span></div>
+      <div><span class="badge ${isInv?'inverse':'normal'}">${isInv?'↩ Inversa':'→ Normal'}</span></div>
       <div class="btn-group">${btns}</div>
       <div class="result" id="result-${q}">–</div>
     `;
@@ -174,30 +202,28 @@ function buildTable() {
   }
 }
 
-function buildCatCards() {
-  const grid = document.getElementById('cat-grid');
-  grid.innerHTML = '';
+function buildSummary() {
+  const tbody = document.getElementById('summary-body');
+  tbody.innerHTML = '';
   CATEGORIES.forEach((cat, ci) => {
-    const card = document.createElement('div');
-    card.className = 'cat-card';
-    card.style.borderLeft = `4px solid ${cat.color}`;
-    card.id = `cat-card-${ci}`;
-    card.innerHTML = `
-      <div class="cat-name" style="color:${cat.color}">${cat.name}</div>
-      <div class="cat-score" id="cat-score-${ci}">0</div>
-      <div class="cat-info" id="cat-info-${ci}">0/${cat.questions.size} respondidas</div>
+    const tr = document.createElement('tr');
+    tr.id = `summary-row-${ci}`;
+    tr.innerHTML = `
+      <td><div class="cat-label">
+        <div class="cat-dot" style="background:${cat.color}"></div>
+        ${cat.name}
+      </div></td>
+      <td class="resp-count" id="sum-resp-${ci}">0/${cat.questions.size}</td>
+      <td><span class="score-val" id="sum-score-${ci}">–</span></td>
+      <td><span class="pctile-val" id="sum-pctile-${ci}">–</span></td>
     `;
-    grid.appendChild(card);
+    tbody.appendChild(tr);
   });
 }
 
 function select(q, val) {
-  // Toggle off if same
-  if (answers[q] === val) {
-    delete answers[q];
-  } else {
-    answers[q] = val;
-  }
+  if (answers[q] === val) { delete answers[q]; }
+  else { answers[q] = val; }
   updateRow(q);
   updateSummary();
 }
@@ -205,44 +231,32 @@ function select(q, val) {
 function updateRow(q) {
   const ans   = answers[q];
   const score = ans !== undefined ? getScore(q, ans) : null;
-
   for (let v = 0; v <= 4; v++) {
     const btn = document.getElementById(`btn-${q}-${v}`);
     if (btn) btn.className = `btn-ans${ans === v ? ' selected' : ''}`;
   }
-
   const resEl = document.getElementById(`result-${q}`);
-  if (score !== null) {
-    resEl.textContent = score;
-    resEl.className = 'result has-value';
-  } else {
-    resEl.textContent = '–';
-    resEl.className = 'result';
-  }
+  if (score !== null) { resEl.textContent = score; resEl.className = 'result has-value'; }
+  else                { resEl.textContent = '–';   resEl.className = 'result'; }
 }
 
 function updateSummary() {
   let totalAnswered = 0;
-  let grandTotal    = 0;
-
   CATEGORIES.forEach((cat, ci) => {
     let catTotal = 0, catAnswered = 0;
     cat.questions.forEach(q => {
       const ans = answers[q];
-      if (ans !== undefined) {
-        catTotal += getScore(q, ans);
-        catAnswered++;
-      }
+      if (ans !== undefined) { catTotal += getScore(q, ans); catAnswered++; }
     });
-    document.getElementById(`cat-score-${ci}`).textContent = catTotal;
-    document.getElementById(`cat-info-${ci}`).textContent  = `${catAnswered}/${cat.questions.size} respondidas`;
-    grandTotal    += catTotal;
     totalAnswered += catAnswered;
+    const pctile = catAnswered > 0 ? getPercentile(ci, catTotal) : null;
+    document.getElementById(`sum-resp-${ci}`).textContent   = `${catAnswered}/${cat.questions.size}`;
+    document.getElementById(`sum-score-${ci}`).textContent  = catAnswered > 0 ? catTotal : '–';
+    const pEl = document.getElementById(`sum-pctile-${ci}`);
+    pEl.textContent  = pctile !== null ? pctile : '–';
+    pEl.className    = 'pctile-val';
   });
-
   document.getElementById('answered-count').textContent = totalAnswered;
-  document.getElementById('grand-num').textContent      = grandTotal;
-  document.getElementById('grand-sub').textContent      = `${totalAnswered} de 55 preguntas respondidas`;
 }
 
 function clearAll() {
@@ -252,54 +266,58 @@ function clearAll() {
 }
 
 function downloadHTML() {
-  let grandTotal = 0, totalAnswered = 0;
-
   const qRows = Array.from({length:55},(_,i)=>i+1).map((q, idx) => {
     const isInv = INVERSE.has(q);
     const ans   = answers[q];
     const score = ans !== undefined ? getScore(q, ans) : null;
-    if (score !== null) { grandTotal += score; totalAnswered++; }
     const bg        = idx % 2 === 0 ? '#fff' : '#f8fafc';
     const typeBg    = isInv ? '#fef3c7' : '#dcfce7';
-    const typeColor = isInv ? '#92400e' : '#166534';
+    const typeColor = isInv ? '#92400e' : '#166634';
     const typeLabel = isInv ? '↩ Inversa' : '→ Normal';
     const btnCells  = [0,1,2,3,4].map(v => {
       const sel = ans === v;
-      return `<span style="display:inline-block;width:30px;height:30px;line-height:28px;text-align:center;border-radius:6px;border:2px solid ${sel?'#1e3a5f':'#e0e0e0'};background:${sel?'#1e3a5f':'#fff'};color:${sel?'#fff':'#555'};font-weight:700;font-size:13px;margin-right:4px">${v}</span>`;
+      return `<span style="display:inline-block;width:28px;height:28px;line-height:26px;text-align:center;border-radius:6px;border:2px solid ${sel?'#1e3a5f':'#e0e0e0'};background:${sel?'#1e3a5f':'#fff'};color:${sel?'#fff':'#555'};font-weight:700;font-size:13px;margin-right:3px">${v}</span>`;
     }).join('');
     return `<tr style="background:${bg}">
-      <td style="padding:8px 16px;font-weight:700;color:#1e3a5f">${q}</td>
-      <td style="padding:8px 16px"><span style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:10px;background:${typeBg};color:${typeColor}">${typeLabel}</span></td>
-      <td style="padding:8px 16px">${btnCells}</td>
-      <td style="padding:8px 16px;text-align:center;font-weight:700;font-size:18px;color:${score!==null?'#16a34a':'#ccc'}">${score!==null?score:'–'}</td>
+      <td style="padding:7px 14px;font-weight:700;color:#1e3a5f">${q}</td>
+      <td style="padding:7px 14px"><span style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:10px;background:${typeBg};color:${typeColor}">${typeLabel}</span></td>
+      <td style="padding:7px 14px">${btnCells}</td>
+      <td style="padding:7px 14px;text-align:center;font-weight:700;font-size:17px;color:${score!==null?'#16a34a':'#ccc'}">${score!==null?score:'–'}</td>
     </tr>`;
   }).join('');
 
-  const catCards = CATEGORIES.map((cat) => {
+  let totalAnswered = 0;
+  const summaryRows = CATEGORIES.map((cat, ci) => {
     let catTotal = 0, catAnswered = 0;
     cat.questions.forEach(q => {
       const ans = answers[q];
       if (ans !== undefined) { catTotal += getScore(q, ans); catAnswered++; }
     });
-    return `<div style="background:#fff;border-radius:10px;padding:14px 16px;border-left:4px solid ${cat.color};box-shadow:0 1px 6px rgba(0,0,0,0.07)">
-      <div style="color:${cat.color};font-size:11px;font-weight:700;text-transform:uppercase;margin-bottom:6px">${cat.name}</div>
-      <div style="color:#1e3a5f;font-weight:800;font-size:28px">${catTotal}</div>
-      <div style="color:#999;font-size:12px">${catAnswered}/${cat.questions.size} respondidas</div>
-    </div>`;
+    totalAnswered += catAnswered;
+    const pctile = catAnswered > 0 ? getPercentile(ci, catTotal) : null;
+    const pColor = '#1e3a5f';
+    return `<tr>
+      <td style="padding:12px 14px;font-weight:600">
+        <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${cat.color};margin-right:8px"></span>${cat.name}
+      </td>
+      <td style="padding:12px 14px;text-align:center;color:#999;font-size:13px">${catAnswered}/${cat.questions.size}</td>
+      <td style="padding:12px 14px;text-align:center;font-weight:800;font-size:18px;color:#1e3a5f">${catAnswered>0?catTotal:'–'}</td>
+      <td style="padding:12px 14px;text-align:center;font-weight:800;font-size:18px;color:${pColor}">${pctile!==null?pctile:'–'}</td>
+    </tr>`;
   }).join('');
 
   const html = `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Cuestionario – Resultados</title>
+  <title>Cuestionario CPRD – Resultados</title>
   <style>body{font-family:'Segoe UI',sans-serif;background:#f0f4f8;padding:24px;margin:0}*{box-sizing:border-box}</style>
 </head>
 <body>
-<div style="max-width:900px;margin:0 auto">
+<div style="max-width:960px;margin:0 auto">
   <div style="background:#1e3a5f;border-radius:12px;padding:20px 28px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center">
     <div>
-      <h1 style="color:#fff;margin:0;font-size:22px;font-weight:700">Cuestionario – Resultados</h1>
+      <h1 style="color:#fff;margin:0;font-size:22px;font-weight:700">Cuestionario C.P.R.D. – Resultados</h1>
       <p style="color:#a8c4e0;margin:4px 0 0;font-size:13px">Normales: 0→4, 4→0 · Inversas: 0→0, 4→4</p>
     </div>
     <div style="color:#a8c4e0;font-size:13px">${totalAnswered}/55 respondidas</div>
@@ -308,42 +326,36 @@ function downloadHTML() {
   <div style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.07);margin-bottom:24px">
     <table style="width:100%;border-collapse:collapse">
       <thead><tr style="background:#1e3a5f">
-        <th style="padding:10px 16px;color:#a8c4e0;font-size:12px;text-align:left;text-transform:uppercase;width:56px">#</th>
-        <th style="padding:10px 16px;color:#a8c4e0;font-size:12px;text-align:left;text-transform:uppercase;width:110px">Tipo</th>
-        <th style="padding:10px 16px;color:#a8c4e0;font-size:12px;text-align:left;text-transform:uppercase">Respuesta</th>
-        <th style="padding:10px 16px;color:#a8c4e0;font-size:12px;text-align:center;text-transform:uppercase;width:90px">Resultado</th>
+        <th style="padding:10px 14px;color:#a8c4e0;font-size:11px;text-align:left;text-transform:uppercase;width:50px">#</th>
+        <th style="padding:10px 14px;color:#a8c4e0;font-size:11px;text-align:left;text-transform:uppercase;width:100px">Tipo</th>
+        <th style="padding:10px 14px;color:#a8c4e0;font-size:11px;text-align:left;text-transform:uppercase">Respuesta</th>
+        <th style="padding:10px 14px;color:#a8c4e0;font-size:11px;text-align:center;text-transform:uppercase;width:80px">Resultado</th>
       </tr></thead>
       <tbody>${qRows}</tbody>
     </table>
   </div>
 
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px">
-    ${catCards}
-  </div>
-
-  <div style="background:#1e3a5f;border-radius:12px;padding:16px 28px;display:flex;justify-content:space-between;align-items:center">
-    <div>
-      <div style="color:#a8c4e0;font-size:12px;text-transform:uppercase;letter-spacing:1px">Puntuación directa total</div>
-      <div style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:2px">${totalAnswered} de 55 preguntas respondidas</div>
-    </div>
-    <div style="color:#4ade80;font-weight:800;font-size:36px">${grandTotal}</div>
-  </div>
+  <table style="width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
+    <thead><tr style="background:#1e3a5f">
+      <th style="padding:12px 14px;color:#a8c4e0;font-size:11px;text-align:left;text-transform:uppercase">Categoría</th>
+      <th style="padding:12px 14px;color:#a8c4e0;font-size:11px;text-align:center;text-transform:uppercase">Respondidas</th>
+      <th style="padding:12px 14px;color:#a8c4e0;font-size:11px;text-align:center;text-transform:uppercase">Puntuación directa</th>
+      <th style="padding:12px 14px;color:#a8c4e0;font-size:11px;text-align:center;text-transform:uppercase">Percentil</th>
+    </tr></thead>
+    <tbody>${summaryRows}</tbody>
+  </table>
 </div>
-</body>
-</html>`;
+</body></html>`;
 
   const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
-  a.href     = url;
-  a.download = 'cuestionario_resultados.html';
-  a.click();
-  URL.revokeObjectURL(url);
+  a.href = url; a.download = 'cuestionario_resultados.html';
+  a.click(); URL.revokeObjectURL(url);
 }
 
-// Init
 buildTable();
-buildCatCards();
+buildSummary();
 updateSummary();
 </script>
 </body>
